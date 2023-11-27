@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 /// Basic structure of a Reddit response.
 /// See: <https://github.com/reddit-archive/reddit/wiki/JSON>
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BasicThing<T> {
     /// An identifier that specifies the type of object that this is.
     pub kind: Option<String>,
@@ -15,7 +15,7 @@ pub struct BasicThing<T> {
 }
 
 /// JSON list response.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Listing<T> {
     /// Modhash
     pub modhash: Option<String>,

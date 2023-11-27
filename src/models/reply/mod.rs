@@ -8,7 +8,7 @@ use crate::models::response::BasicListing;
 pub type Replies = BasicListing<CommentData>;
 
 /// Replies can be more comments or an empty string
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum MaybeReplies {
     /// Reply

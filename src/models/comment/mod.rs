@@ -5,7 +5,7 @@ use crate::models::{reply::MaybeReplies, response::BasicListing};
 
 /// SubredditCommentsData
 /// Everything is an option to deal with both `latest_comments` and `article_comments`
-#[derive(Serialize, Debug, Deserialize)]
+#[derive(Serialize, Debug, Deserialize, Clone)]
 pub struct CommentData {
     /// Total awards
     pub total_awards_received: Option<i32>,

@@ -17,6 +17,8 @@ pub enum RouxError {
     Parse(serde_json::Error),
     /// Occurs if there is a grant error.
     Auth(String),
+    /// Missing data.
+    MissingData
 }
 
 impl From<client::Error> for RouxError {
@@ -38,6 +40,7 @@ impl fmt::Display for RouxError {
             RouxError::Network(ref err) => err.fmt(f),
             RouxError::Parse(ref err) => err.fmt(f),
             RouxError::Auth(ref err) => write!(f, "Auth error: {}", err),
+            _ => write!(f, "Missing data")
         }
     }
 }
@@ -49,6 +52,7 @@ impl error::Error for RouxError {
             RouxError::Auth(_) => None,
             RouxError::Network(ref err) => Some(err),
             RouxError::Parse(ref err) => Some(err),
+            _ => None
         }
     }
 }

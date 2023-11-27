@@ -12,6 +12,8 @@ use crate::config::Config;
 use crate::models::me::response::MeData;
 use crate::models::{Friend, Inbox, Saved};
 use crate::util::{url, FeedOption, RouxError};
+use crate::response::{BasicListing, BasicThing, Listing};
+use crate::comment::CommentData;
 
 /// Me
 #[derive(Debug, Clone)]
@@ -32,8 +34,12 @@ impl Me {
     }
 
     #[maybe_async::maybe_async]
-    async fn get(&self, url: &str) -> Result<Response, RouxError> {
-        let get_url = url::build_oauth(url);
+    async fn get(&self, url: &str, maybe_query: Option<String>) -> Result<Response, RouxError> {
+        let mut get_url = url::build_oauth(url);
+
+        if let Some(query) = maybe_query {
+            get_url = format!("{}?{}", get_url, query);
+        }
 
         match self.client.get(&get_url[..]).send().await {
             Ok(response) => Ok(response),
@@ -54,7 +60,7 @@ impl Me {
     /// Get me
     #[maybe_async::maybe_async]
     pub async fn me(&self) -> Result<MeData, RouxError> {
-        match self.get("api/v1/me").await {
+        match self.get("api/v1/me", None).await {
             Ok(res) => Ok(res.json::<MeData>().await?),
             Err(e) => Err(e),
         }
@@ -169,7 +175,7 @@ impl Me {
     /// Get user's submitted posts.
     #[maybe_async::maybe_async]
     pub async fn inbox(&self) -> Result<Inbox, RouxError> {
-        Ok(self.get("message/inbox").await?.json::<Inbox>().await?)
+        Ok(self.get("message/inbox", None).await?.json::<Inbox>().await?)
     }
 
     /// Get saved
@@ -184,7 +190,7 @@ impl Me {
             options.build_url(url);
         }
 
-        Ok(self.get(&url).await?.json::<Saved>().await?)
+        Ok(self.get(&url, None).await?.json::<Saved>().await?)
     }
 
     /// Get upvoted
@@ -199,7 +205,7 @@ impl Me {
             options.build_url(url);
         }
 
-        Ok(self.get(&url).await?.json::<Saved>().await?)
+        Ok(self.get(&url, None).await?.json::<Saved>().await?)
     }
 
     /// Get downvoted
@@ -214,13 +220,13 @@ impl Me {
             options.build_url(url);
         }
 
-        Ok(self.get(&url).await?.json::<Saved>().await?)
+        Ok(self.get(&url, None).await?.json::<Saved>().await?)
     }
 
     /// Get users unread messages
     #[maybe_async::maybe_async]
     pub async fn unread(&self) -> Result<Inbox, RouxError> {
-        Ok(self.get("message/unread").await?.json::<Inbox>().await?)
+        Ok(self.get("message/unread", None).await?.json::<Inbox>().await?)
     }
 
     /// Mark messages as read
@@ -242,6 +248,15 @@ impl Me {
     pub async fn comment(&self, text: &str, parent: &str) -> Result<Response, RouxError> {
         let form = [("text", text), ("parent", parent)];
         self.post("api/comment", &form).await
+    }
+
+    /// Get comment
+    #[maybe_async::maybe_async]
+    pub async fn get_comment(&self, comment_id: &str) -> Result<BasicListing<CommentData>, RouxError> {
+        let url = "api/info";
+        let query = Some(format!("id=t1_{}", comment_id));
+
+        Ok(self.get(&url, query).await?.json::<BasicListing<CommentData>>().await?)
     }
 
     /// Edit a 'thing'
