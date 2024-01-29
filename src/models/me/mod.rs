@@ -91,13 +91,18 @@ impl Me {
         title: &str,
         text: &str,
         sr: &str,
+        flair_id: Option<String>
     ) -> Result<Response, RouxError> {
-        let form = [
-            ("kind", "self"),
-            ("title", title),
-            ("text", text),
-            ("sr", sr),
+        let mut form: Vec<(&str, String)> = vec![
+            ("kind", "self".to_owned()),
+            ("title", title.to_owned()),
+            ("text", text.to_owned()),
+            ("sr", sr.to_owned()),
         ];
+
+        if let Some(flair_id) = flair_id {
+            form.push(("flair_id", flair_id));
+        }
 
         self.post("api/submit", &form).await
     }
